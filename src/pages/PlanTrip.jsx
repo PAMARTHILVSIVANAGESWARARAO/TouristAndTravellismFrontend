@@ -1,167 +1,157 @@
 import React, { useState } from "react";
-import { planTrip, createTrip } from "../api/tripAPI";
+import { generatePlan, createTrip } from "../api/tripAPI";
 
 function PlanTrip() {
   const [form, setForm] = useState({
     startPlace: "",
-    destination: ""
+    destination: "",
   });
 
   const [loading, setLoading] = useState(false);
-  const [aiTrip, setAiTrip] = useState(null);
-  const [error, setError] = useState("");
-  const [saveMsg, setSaveMsg] = useState("");
+  const [plan, setPlan] = useState(null);
+  const [msg, setMsg] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
-  const handlePlanTrip = async (e) => {
+  const createAIPlan = async (e) => {
     e.preventDefault();
-    setError("");
-    setSaveMsg("");
+    setMsg("");
 
     if (!form.startPlace || !form.destination) {
-      setError("Both fields are required");
+      setMsg("All fields are required");
       return;
     }
 
     try {
       setLoading(true);
-      const result = await planTrip(form);
-      setAiTrip(result.data);
-    } catch (error) {
-      setError("Failed to generate trip plan");
-    } finally {
+      const res = await generatePlan(form);
+      setPlan(res.data);
       setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      setMsg("Error generating plan");
     }
   };
 
   const saveTrip = async () => {
     try {
-      const res = await createTrip(aiTrip);
-      setSaveMsg("Trip saved successfully!");
-    } catch (error) {
-      setSaveMsg("Failed to save trip");
+      setLoading(true);
+      const res = await createTrip(plan);
+      setLoading(false);
+      setMsg("Trip saved successfully!");
+    } catch (err) {
+      setLoading(false);
+      setMsg("Failed to save trip");
     }
   };
 
   return (
-    <div className="min-h-screen bg-green-100 p-6">
-      <div className="bg-white p-8 shadow rounded-lg max-w-3xl mx-auto">
+    <div className="p-6 bg-gray-100 min-h-screen">
 
-        <h1 className="text-3xl font-bold text-green-700 mb-6">
-          Plan a Trip
-        </h1>
+      <h1 className="text-3xl font-bold mb-4">Plan a New Trip 🌍</h1>
 
-        {/* Error */}
-        {error && <p className="text-red-600 mb-3">{error}</p>}
+      {msg && <p className="text-red-600 font-semibold">{msg}</p>}
 
-        {/* Trip Planner Form */}
-        <form onSubmit={handlePlanTrip} className="space-y-4 mb-8">
-          
-          <div>
-            <label className="font-semibold block mb-1">Starting Place</label>
-            <input
-              type="text"
-              name="startPlace"
-              value={form.startPlace}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:border-green-500"
-              placeholder="Hyderabad"
-            />
+      {/* FORM */}
+      <form onSubmit={createAIPlan} className="mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          <input
+            type="text"
+            name="startPlace"
+            placeholder="Starting Place"
+            className="p-3 border rounded"
+            onChange={handleChange}
+          />
+
+          <input
+            type="text"
+            name="destination"
+            placeholder="Destination"
+            className="p-3 border rounded"
+            onChange={handleChange}
+          />
+        </div>
+
+        <button
+          className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+          disabled={loading}
+        >
+          {loading ? "Generating..." : "Generate Plan"}
+        </button>
+      </form>
+
+      {/* DISPLAY GENERATED PLAN */}
+      {plan && (
+        <div className="bg-white p-6 rounded shadow-lg">
+
+          <h2 className="text-2xl font-bold mb-4">AI Trip Plan</h2>
+
+          {/* Budget */}
+          <div className="mb-4">
+            <h3 className="font-bold text-lg">Budget</h3>
+            <p>
+              Estimated Total: {plan.budget.estimatedTotal}{" "}
+              {plan.budget.currency}
+            </p>
+
+            <ul className="ml-4 list-disc">
+              {Object.entries(plan.budget.breakdown).map(([key, val]) => (
+                <li key={key}>
+                  {key}: {val}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <div>
-            <label className="font-semibold block mb-1">Destination</label>
-            <input
-              type="text"
-              name="destination"
-              value={form.destination}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:border-green-500"
-              placeholder="Goa"
-            />
+          {/* Flights */}
+          <div className="mb-4">
+            <h3 className="font-bold text-lg">Flights</h3>
+            <ul className="ml-4 list-disc">
+              {plan.flights.map((f, idx) => (
+                <li key={idx}>
+                  {f.flightName} – {f.price} {f.currency}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Locations */}
+          <div className="mb-4">
+            <h3 className="font-bold text-lg">Locations</h3>
+            <ul className="ml-4 list-disc">
+              {plan.locations.map((loc, idx) => (
+                <li key={idx}>
+                  <strong>{loc.name}</strong> – {loc.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Itinerary */}
+          <div className="mb-4">
+            <h3 className="font-bold text-lg">Itinerary</h3>
+            {plan.itinerary.map((day, idx) => (
+              <div key={idx} className="mb-2">
+                <strong>Day {day.day}</strong>
+                <ul className="ml-6 list-disc">
+                  {day.activities.map((act, i) => (
+                    <li key={i}>{act}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-green-600 text-white py-2 font-semibold rounded hover:bg-green-700"
+            onClick={saveTrip}
+            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
           >
-            {loading ? "Generating..." : "Generate Trip Plan"}
+            Save Trip
           </button>
-
-        </form>
-
-        {/* AI Generated Trip Display */}
-        {aiTrip && (
-          <div className="bg-gray-50 p-6 rounded-lg shadow-inner space-y-3">
-
-            <h2 className="text-2xl font-bold text-green-700">
-              Suggested Trip Plan
-            </h2>
-
-            <p><strong>From:</strong> {aiTrip.startPlace}</p>
-            <p><strong>To:</strong> {aiTrip.destination}</p>
-
-            {/* Budget */}
-            <div>
-              <h3 className="font-bold text-lg">Estimated Budget:</h3>
-              <p>{aiTrip.budget?.estimatedTotal} {aiTrip.budget?.currency}</p>
-            </div>
-
-            {/* Flights */}
-            <div>
-              <h3 className="font-bold text-lg">Flights:</h3>
-              {aiTrip.flights?.map((f, i) => (
-                <p key={i}>
-                  {f.flightName} — {f.price} {f.currency}
-                </p>
-              ))}
-            </div>
-
-            {/* Locations */}
-            <div>
-              <h3 className="font-bold text-lg">Locations:</h3>
-              {aiTrip.locations?.map((loc, i) => (
-                <p key={i}>
-                  • {loc.name} — {loc.recommendedTime}
-                </p>
-              ))}
-            </div>
-
-            {/* Itinerary */}
-            <div>
-              <h3 className="font-bold text-lg">Itinerary:</h3>
-              {aiTrip.itinerary?.map((day, i) => (
-                <div key={i}>
-                  <p className="font-semibold">Day {day.day}</p>
-                  {day.activities.map((act, j) => (
-                    <p key={j}>• {act}</p>
-                  ))}
-                </div>
-              ))}
-            </div>
-
-            {/* Save Trip Button */}
-            <button
-              onClick={saveTrip}
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 mt-4"
-            >
-              Save This Trip
-            </button>
-
-            {saveMsg && (
-              <p className="text-center text-green-600 mt-3 font-medium">
-                {saveMsg}
-              </p>
-            )}
-
-          </div>
-        )}
-
-      </div>
+        </div>
+      )}
     </div>
   );
 }

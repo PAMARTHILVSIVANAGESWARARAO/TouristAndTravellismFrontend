@@ -1,14 +1,9 @@
-// Save token to localStorage
-export const saveToken = (token) => {
-  localStorage.setItem("token", token);
+export const isLoggedIn = () => {
+  const token = localStorage.getItem("accessToken");
+  return token ? true : false;
 };
 
-// Get token
-export const getToken = () => {
-  return localStorage.getItem("token");
-};
-
-// Remove token (logout)
-export const removeToken = () => {
-  localStorage.removeItem("token");
+export const logout = () => {
+  localStorage.removeItem("accessToken");
+  window.location.href = "/login";
 };

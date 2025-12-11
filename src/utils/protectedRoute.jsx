@@ -1,15 +1,12 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { getToken } from "./auth";
+import { isLoggedIn } from "./auth";
 
-const ProtectedRoute = ({ children }) => {
-  const token = getToken();
-
-  if (!token) {
+function ProtectedRoute({ children }) {
+  if (!isLoggedIn()) {
     return <Navigate to="/login" replace />;
   }
-
   return children;
-};
+}
 
 export default ProtectedRoute;

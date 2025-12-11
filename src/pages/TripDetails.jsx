@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { getTripById } from "../api/tripAPI";
 import { useParams, Link } from "react-router-dom";
-import { getTripById, updateTripStatus } from "../api/tripAPI";
 
 function TripDetails() {
   const { id } = useParams();
@@ -10,140 +10,102 @@ function TripDetails() {
   const loadTrip = async () => {
     try {
       const res = await getTripById(id);
-      setTrip(res);
-    } catch (error) {
-      console.log("Failed to load trip");
+      setTrip(res.data);
+    } catch (err) {
+      setMsg("Failed to load trip details");
     }
   };
 
   useEffect(() => {
     loadTrip();
-  }, []);
+  }, [id]);
 
-  const changeStatus = async (status) => {
-    try {
-      await updateTripStatus(id, status);
-      setMsg("Status updated!");
-      loadTrip();
-    } catch (error) {
-      setMsg("Failed to update status");
-    }
-  };
-
-  if (!trip) {
-    return (
-      <div className="min-h-screen bg-green-100 p-6">
-        <p className="text-center text-lg">Loading trip...</p>
-      </div>
-    );
-  }
+  if (!trip)
+    return <div className="p-10 text-center">Loading trip details...</div>;
 
   return (
-    <div className="min-h-screen bg-green-100 p-6">
+    <div className="p-6 bg-gray-100 min-h-screen">
 
-      <Link
-        to="/trips"
-        className="text-green-700 font-semibold hover:underline text-lg"
-      >
-        ← Back to Trips
-      </Link>
+      <h1 className="text-3xl font-bold mb-4">{trip.destination} Trip</h1>
 
-      <h1 className="text-3xl font-bold text-green-700 mt-4 mb-6">
-        {trip.startPlace} → {trip.destination}
-      </h1>
+      {msg && <p className="text-red-600 font-semibold">{msg}</p>}
 
-      {msg && <p className="text-green-600 mb-4">{msg}</p>}
+      <div className="bg-white p-6 rounded shadow-lg">
 
-      {/* Status Section */}
-      <div className="bg-white p-4 rounded shadow mb-6">
-        <h2 className="font-bold text-xl mb-2">Status</h2>
-        <p className="mb-3">
-          Current:{" "}
-          <span className="font-semibold text-blue-700">{trip.status}</span>
+        {/* ♻ Trip Basic Info */}
+        <p className="text-lg mb-4">
+          <strong>From:</strong> {trip.startPlace}
         </p>
 
-        <div className="flex gap-3">
-          <button
-            onClick={() => changeStatus("ongoing")}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        <p className="text-lg mb-4">
+          <strong>Status:</strong>{" "}
+          <span
+            className={`px-3 py-1 rounded text-sm ${
+              trip.status === "completed"
+                ? "bg-green-200 text-green-700"
+                : "bg-yellow-200 text-yellow-700"
+            }`}
           >
-            Ongoing
-          </button>
-
-          <button
-            onClick={() => changeStatus("completed")}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Completed
-          </button>
-
-          <button
-            onClick={() => changeStatus("cancelled")}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Cancelled
-          </button>
-        </div>
-      </div>
-
-      {/* Budget Section */}
-      <div className="bg-white p-4 rounded shadow mb-6">
-        <h2 className="font-bold text-xl mb-3">Estimated Budget</h2>
-        <p className="font-medium text-lg">
-          {trip.budget?.estimatedTotal} {trip.budget?.currency}
+            {trip.status}
+          </span>
         </p>
 
-        <div className="mt-3 text-gray-700">
-          {trip.budget?.breakdown &&
-            Object.entries(trip.budget.breakdown).map(([key, value]) => (
-              <p key={key}>
-                <span className="font-semibold capitalize">{key}:</span> {value}
-              </p>
-            ))}
-        </div>
-      </div>
+        {/* 💰 Budget */}
+        <h2 className="text-2xl font-semibold mt-4 mb-2">Budget</h2>
+        <p>
+          Total: {trip.budget.estimatedTotal} {trip.budget.currency}
+        </p>
+        <ul className="ml-5 list-disc">
+          {Object.entries(trip.budget.breakdown).map(([key, val]) => (
+            <li key={key}>
+              {key}: {val}
+            </li>
+          ))}
+        </ul>
 
-      {/* Flights Section */}
-      <div className="bg-white p-4 rounded shadow mb-6">
-        <h2 className="font-bold text-xl mb-3">Flights</h2>
-        {trip.flights?.map((f, i) => (
-          <p key={i} className="mb-2">
-            ✈️ {f.flightName} — {f.price} {f.currency} ({f.duration})
-          </p>
-        ))}
-      </div>
+        {/* ✈ Flights */}
+        <h2 className="text-2xl font-semibold mt-5 mb-2">Flights</h2>
+        <ul className="ml-5 list-disc">
+          {trip.flights.map((f, idx) => (
+            <li key={idx}>
+              {f.flightName} – {f.price} {f.currency} ({f.duration})
+            </li>
+          ))}
+        </ul>
 
-      {/* Locations Section */}
-      <div className="bg-white p-4 rounded shadow mb-6">
-        <h2 className="font-bold text-xl mb-3">Suggested Places</h2>
-        {trip.locations?.map((loc, i) => (
-          <p key={i} className="mb-1">
-            📍 {loc.name} — {loc.recommendedTime}
-          </p>
-        ))}
-      </div>
+        {/* 📍 Locations */}
+        <h2 className="text-2xl font-semibold mt-5 mb-2">Locations</h2>
+        <ul className="ml-5 list-disc">
+          {trip.locations.map((loc, idx) => (
+            <li key={idx}>
+              <strong>{loc.name}</strong>: {loc.description}
+            </li>
+          ))}
+        </ul>
 
-      {/* Itinerary Section */}
-      <div className="bg-white p-4 rounded shadow mb-6">
-        <h2 className="font-bold text-xl mb-3">Itinerary</h2>
-        {trip.itinerary?.map((day, i) => (
-          <div key={i} className="mb-3">
-            <p className="font-semibold text-lg">Day {day.day}</p>
-            {day.activities.map((act, j) => (
-              <p key={j}>• {act}</p>
-            ))}
+        {/* 🗓 Itinerary */}
+        <h2 className="text-2xl font-semibold mt-5 mb-2">Itinerary</h2>
+
+        {trip.itinerary.map((day, idx) => (
+          <div key={idx} className="mb-3">
+            <strong>Day {day.day}</strong>
+            <ul className="ml-6 list-disc">
+              {day.activities.map((act, i) => (
+                <li key={i}>{act}</li>
+              ))}
+            </ul>
           </div>
         ))}
-      </div>
 
-      {/* Photos Button */}
-      <div className="bg-white p-4 rounded shadow text-center">
-        <Link
-          to={`/photos?trip=${id}`}
-          className="px-5 py-3 bg-purple-600 text-white rounded hover:bg-purple-700"
-        >
-          Manage Photos
-        </Link>
+        {/* 📸 Upload Photos */}
+        <div className="mt-6">
+          <Link
+            to="/photos"
+            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+          >
+            Manage Photos
+          </Link>
+        </div>
       </div>
     </div>
   );

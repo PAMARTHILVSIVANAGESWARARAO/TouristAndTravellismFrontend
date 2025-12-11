@@ -1,38 +1,27 @@
 import axios from "axios";
-import { getToken, removeToken } from "../utils/auth";
 
-// Backend Base URL
-const BASE_URL = "https://touristandtravelism.onrender.com";
-
-// Create axios instance
 const axiosInstance = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "https://touristandtravelism.onrender.com/api",
 });
 
-// Attach Authorization token automatically
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// Auto attach token
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
 
-// Handle unauthorized responses
+// Auto logout on unauthorized
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      removeToken();
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.clear();
       window.location.href = "/login";
     }
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
 

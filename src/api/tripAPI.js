@@ -1,37 +1,37 @@
 import axiosInstance from "./axiosInstance";
 
-// 1. Plan Trip (AI-generated)
-export const planTrip = async (data) => {
-  const res = await axiosInstance.post("/api/trips/plan", data);
+// AI Trip Planner
+export const generatePlan = async (data) => {
+  const res = await axiosInstance.post("/trips/plan", data);
   return res.data;
 };
 
-// 2. Save Trip
+// Create Trip
 export const createTrip = async (data) => {
-  const res = await axiosInstance.post("/api/trips", data);
+  const res = await axiosInstance.post("/trips", data);
   return res.data;
 };
 
-// 3. Get all trips
-export const getAllTrips = async () => {
-  const res = await axiosInstance.get("/api/trips");
+// Get all Trips
+export const getTrips = async () => {
+  const res = await axiosInstance.get("/trips");
   return res.data;
 };
 
-// 4. Get single trip by ID
+// Get Trip by ID
 export const getTripById = async (id) => {
-  const res = await axiosInstance.get(`/api/trips/${id}`);
+  const res = await axiosInstance.get(`/trips/${id}`);
   return res.data;
 };
 
-// 5. Update status (completed / ongoing / cancelled)
+// Update Trip Status
 export const updateTripStatus = async (id, status) => {
-  const res = await axiosInstance.patch(`/api/trips/${id}/status`, { status });
+  const res = await axiosInstance.patch(`/trips/${id}/status`, { status });
   return res.data;
 };
 
-// 6. Delete a trip
+// Delete Trip
 export const deleteTrip = async (id) => {
-  const res = await axiosInstance.delete(`/api/trips/${id}`);
+  const res = await axiosInstance.delete(`/trips/${id}`);
   return res.data;
 };
