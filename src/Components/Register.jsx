@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { registerUser } from "../api/authAPI";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Eren from "../assets/Eren-Yeager.png";
 
 function Register() {
   const navigate = useNavigate();
@@ -11,7 +14,6 @@ function Register() {
     password: "",
   });
 
-  const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -22,75 +24,116 @@ function Register() {
     e.preventDefault();
 
     if (!form.name || !form.email || !form.password) {
-      setMsg("All fields are required");
+      toast.error("All fields are required");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await registerUser(form);
+      await registerUser(form);
 
-      setMsg("Registration successful! Redirecting...");
+      toast.success("Registration successful!");
       setLoading(false);
 
-      setTimeout(() => navigate("/login"), 800);
-    } catch (err) {
+      setTimeout(() => navigate("/login"), 900);
+    } catch {
       setLoading(false);
-      setMsg("Email already exists or invalid data");
+      toast.error("Email already exists or invalid data");
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100 px-4">
-      <form
-        onSubmit={submitRegister}
-        className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg"
+    <div
+      className="min-h-screen flex bg-gray-100"
+      style={{ fontFamily: "'Poppins', sans-serif" }}
+    >
+      <ToastContainer position="top-right" autoClose={2500} />
+
+      {/* Left Image Section */}
+      <div
+        className="hidden md:flex w-1/2 relative bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${Eren})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh"
+        }}
+
       >
-        <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 flex flex-col justify-end p-10 text-white">
+          <h1 className="text-4xl font-extrabold mb-3">
+            Start Your Journey 🚀
+          </h1>
+          <p className="text-lg font-light max-w-md">
+            “The journey of a thousand miles begins with a single step.”
+          </p>
+        </div>
+      </div>
 
-        {msg && (
-          <p className="text-center text-red-600 font-semibold mb-3">{msg}</p>
-        )}
-
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          className="w-full border rounded px-3 py-2 mb-3"
-          onChange={handleChange}
-        />
-
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="w-full border rounded px-3 py-2 mb-3"
-          onChange={handleChange}
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="w-full border rounded px-3 py-2 mb-3"
-          onChange={handleChange}
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+      {/* Right Form Section */}
+      <div className="w-full md:w-1/2 flex justify-center items-center px-6">
+        <form
+          onSubmit={submitRegister}
+          className="bg-white w-full max-w-md p-8 rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl"
         >
-          {loading ? "Registering..." : "Register"}
-        </button>
+          <h2 className="text-3xl font-bold text-center mb-2">Create Account</h2>
+          <p className="text-center text-gray-500 mb-6">
+            Join us and explore more
+          </p>
 
-        <p className="text-center mt-3 text-sm">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-semibold">
-            Login
-          </Link>
-        </p>
-      </form>
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+          />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-10 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold
+                       hover:bg-green-700 active:scale-95 transition
+                       flex justify-center items-center shadow-md hover:shadow-lg mt-3"
+          >
+            {loading ? (
+              <div className="spinner-border spinner-border-sm text-light" />
+            ) : (
+              "Register"
+            )}
+          </button>
+
+          <p className="text-center mt-6 text-sm text-gray-600">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="relative font-semibold text-green-600
+                         after:content-[''] after:absolute after:left-0 after:-bottom-1
+                         after:w-0 after:h-[2px] after:bg-green-600"
+            >
+              Login
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }

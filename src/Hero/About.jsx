@@ -11,18 +11,23 @@ function About() {
         {/* About Us Heading with Background Clipped Inside Text */}
         <div className="pt-20 pb-12 px-4">
           <h1
-            className="text-center text-7xl sm:text-8xl md:text-9xl font-black uppercase tracking-wider bg-clip-text text-transparent"
-            style={{
-              backgroundImage: `url(${Background})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}
-          >
-            About Us
-          </h1>
+  className="text-center text-7xl sm:text-8xl md:text-9xl font-black uppercase tracking-wider bg-clip-text text-transparent"
+  style={{
+    backgroundImage: `url(${Background})`,
+    backgroundSize: '200% 200%',
+    backgroundPosition: '0% 50%',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    fontSize: '100px',
+    fontFamily: '"Alfa Slab One", serif',
+    fontWeight: 'bolder',
+    animation: 'moveImage 8s linear infinite',
+  }}
+>
+  About Us
+</h1>
+
         </div>
 
         {/* Content Section - Green Text on White Background */}

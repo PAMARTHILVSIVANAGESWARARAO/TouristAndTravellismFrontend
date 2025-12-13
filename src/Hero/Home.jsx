@@ -93,8 +93,9 @@ function Home() {
               z-[1]
               transition-all duration-[80ms] ease-in
             "
+            style={{textDecoration:"none"}}
             >
-              <span className="relative z-10">Login</span>
+              <span className="relative z-10" >Login</span>
             </Link>
 
             {/* JOIN NOW BUTTON */}
@@ -115,7 +116,7 @@ function Home() {
               z-[1]
               transition-all duration-[80ms] ease-in
             "
-            >
+             style={{textDecoration:"none" , color:"#00C951"}}>
               <span className="relative z-10">Join Now</span>
             </Link>
 
