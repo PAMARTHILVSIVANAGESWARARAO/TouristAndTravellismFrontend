@@ -330,7 +330,20 @@ function Photos() {
         <div className="mb-6">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-gray-800 flex items-center" style={{ fontFamily: 'Poppins, sans-serif' }}>
             <i className="bi bi-grid-3x3-gap-fill mr-3 text-green-600"></i>
-            My Gallery ({photos.length})
+            My Gallery <span style={{
+              backgroundColor:"#00A34B",
+              marginLeft:"2px",
+              padding:"2px",
+              width:"24px",
+              height:"24px",
+              borderRadius:"50%",
+              fontSize:"14px",
+              color:"white",
+              display:"inline-block",
+              textAlign:"center"
+
+
+            }}> {photos.length}</span>
           </h2>
 
           {photos.length === 0 ? (
@@ -362,7 +375,11 @@ function Photos() {
                   </div>
 
                   <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50">
-                    <p className="text-sm text-gray-700 mb-3 truncate" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    <p className="text-sm text-gray-700 mb-3 truncate" style={{ fontFamily: '"Ballet", cursive',
+                      fontWeight: "bolder",
+                      fontSize:"14px",
+                      letterSpacing: '1px'
+                     }}>
                       <i className="bi bi-chat-left-text-fill mr-2 text-green-600"></i>
                       {p.caption || "No caption"}
                     </p>
